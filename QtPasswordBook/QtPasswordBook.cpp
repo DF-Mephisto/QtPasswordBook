@@ -188,12 +188,18 @@ void QtPasswordBook::saveCreds()
 	QFile file(fileName);
 	if (file.open(QIODevice::WriteOnly))
 	{
+		SimpleCrypt crypto(cryptKey);
+		crypto.setCompressionMode(SimpleCrypt::CompressionAlways);
 		QDataStream stream(&file);
 		auto iter = creds.begin();
 
 		while (iter != creds.end())
 		{
-			stream << iter->name << iter->email << iter->number << iter->login << iter->password;
+			stream << crypto.encryptToString(iter->name)
+				<< crypto.encryptToString(iter->email)
+				<< crypto.encryptToString(iter->number)
+				<< crypto.encryptToString(iter->login)
+				<< crypto.encryptToString(iter->password);
 			iter++;
 		}
 	}
@@ -204,16 +210,27 @@ void QtPasswordBook::loadCreds()
 	QFile file(fileName);
 	if (file.exists() && file.open(QIODevice::ReadOnly))
 	{
+		SimpleCrypt crypto(cryptKey);
 		QDataStream stream(&file);
+		QString encryptedVal;
 
 		while (!stream.atEnd())
 		{
 			Credentials userCreds;
-			stream >> userCreds.name;
-			stream >> userCreds.email;
-			stream >> userCreds.number;
-			stream >> userCreds.login;
-			stream >> userCreds.password;
+			stream >> encryptedVal;
+			userCreds.name = crypto.decryptToString(encryptedVal);
+
+			stream >> encryptedVal;
+			userCreds.email = crypto.decryptToString(encryptedVal);
+
+			stream >> encryptedVal;
+			userCreds.number = crypto.decryptToString(encryptedVal);
+
+			stream >> encryptedVal;
+			userCreds.login = crypto.decryptToString(encryptedVal);
+
+			stream >> encryptedVal;
+			userCreds.password = crypto.decryptToString(encryptedVal);
 
 			creds[userCreds.name] = userCreds;
 		}

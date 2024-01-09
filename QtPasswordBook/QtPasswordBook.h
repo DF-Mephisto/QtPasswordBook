@@ -3,6 +3,7 @@
 #include <QtWidgets>
 
 #include "PasswordData.h"
+#include "SimpleCrypt.h"
 
 class QtPasswordBook : public QWidget
 {
@@ -24,6 +25,7 @@ private:
 
     QHash<QString, Credentials> creds;
     const QString fileName = "creds.pwd";
+    const unsigned long long cryptKey = 0xf5b3da8dc2fefe52;
 
     void updateTable();
     void removeItem();
