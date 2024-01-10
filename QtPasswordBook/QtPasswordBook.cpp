@@ -56,6 +56,7 @@ QtPasswordBook::QtPasswordBook(QWidget *parent)
 	connect(passwordData, &PasswordData::needAdd, this, &QtPasswordBook::processNewItem);
 	connect(searchEdit, &QLineEdit::textChanged, [this] {updateTable(); });
 	connect(passwordTable, &QTableWidget::cellClicked, this, &QtPasswordBook::cellClicked);
+	connect(passwordTable, &QTableWidget::cellDoubleClicked, this, &QtPasswordBook::cellDoubleClicked);
 	connect(passwordTable, &QTableWidget::customContextMenuRequested, this, &QtPasswordBook::handleContextMenu);
 	connect(saveBtn, &QPushButton::clicked, this, &QtPasswordBook::saveCreds);
 
@@ -124,11 +125,9 @@ bool QtPasswordBook::validateFields(const Credentials& newItemCreds)
 		!QRegExp("[^ @]+@[^ @]+").exactMatch(newItemCreds.email) ||
 		!QRegExp("\\+\\d\\(\\d\\d\\d\\)\\d\\d\\d-\\d\\d-\\d\\d").exactMatch(newItemCreds.number) ||
 		newItemCreds.login.isEmpty() || 
-		newItemCreds.login.startsWith(" ") || 
-		newItemCreds.login.endsWith(" ") ||
+		!QRegExp("[^ ]+").exactMatch(newItemCreds.login) ||
 		newItemCreds.password.isEmpty() || 
-		newItemCreds.password.startsWith(" ") || 
-		newItemCreds.password.endsWith(" "))
+		!QRegExp("[^ ]+").exactMatch(newItemCreds.password))
 		return false;
 
 	return true;
@@ -237,4 +236,41 @@ void QtPasswordBook::loadCreds()
 	}
 
 	updateTable();
+}
+
+void QtPasswordBook::cellDoubleClicked(int row, int col)
+{
+	QString val = passwordTable->item(row, col)->text();
+
+	bool bOk;
+	QString input = QInputDialog::getText(this, tr("Input"), tr("Value: "), QLineEdit::Normal, val, &bOk);
+
+	if (bOk)
+	{
+		switch (col)
+		{
+		case 0:
+			selectedRow = row;
+			removeItem();
+			passwordData->setValue(Credentials::CredType::NAME, input);
+			break;
+
+		case 1:
+			passwordData->setValue(Credentials::CredType::EMAIL, input);
+			break;
+
+		case 2:
+			passwordData->setValue(Credentials::CredType::NUMBER, input);
+			break;
+
+		case 3:
+			passwordData->setValue(Credentials::CredType::LOGIN, input);
+			break;
+
+		case 4:
+			passwordData->setValue(Credentials::CredType::PASSWORD, input);
+			break;
+		}
+		processNewItem();
+	}
 }

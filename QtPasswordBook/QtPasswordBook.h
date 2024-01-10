@@ -34,6 +34,7 @@ private:
 private slots:
     void processNewItem();
     void cellClicked(int row, int col);
+    void cellDoubleClicked(int row, int col);
     void handleContextMenu(const QPoint& point);
     void saveCreds();
     void loadCreds();
