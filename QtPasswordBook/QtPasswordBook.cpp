@@ -177,6 +177,11 @@ void QtPasswordBook::handleContextMenu(const QPoint& point)
 
 void QtPasswordBook::removeItem()
 {
+	removeItem(selectedRow);
+}
+
+void QtPasswordBook::removeItem(int row)
+{
 	QString name = passwordTable->item(selectedRow, 0)->text();
 	creds.remove(name);
 	updateTable();
@@ -250,8 +255,7 @@ void QtPasswordBook::cellDoubleClicked(int row, int col)
 		switch (col)
 		{
 		case 0:
-			selectedRow = row;
-			removeItem();
+			removeItem(row);
 			passwordData->setValue(Credentials::CredType::NAME, input);
 			break;
 

@@ -29,6 +29,7 @@ private:
 
     void updateTable();
     void removeItem();
+    void removeItem(int row);
     bool validateFields(const Credentials& newItemCreds);
 
 private slots:
