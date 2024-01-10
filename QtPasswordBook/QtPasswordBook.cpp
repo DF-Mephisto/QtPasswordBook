@@ -272,5 +272,5 @@ void QtPasswordBook::cellDoubleClicked(int row, int col)
 			break;
 		}
 		processNewItem();
-	}
+	} 
 }
